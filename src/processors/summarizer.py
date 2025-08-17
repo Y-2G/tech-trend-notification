@@ -73,15 +73,17 @@ class ArticleSummarizer:
         # Language-specific prompt
         if settings.language == "ja":
             prompt = f"""
-            この技術記事を2-3文で要約してください。以下に焦点を当ててください:
+            以下の技術記事を日本語で2-3文で要約してください。記事が英語で書かれていても、必ず日本語で要約してください。
+            
+            以下に焦点を当ててください:
             - 主要な技術的ポイントと革新
             - 開発者への実用的な影響
             - 言及されている重要なアップデートや変更
             
-            タイトル: {article.title}
-            内容: {content}
+            記事タイトル: {article.title}
+            記事内容: {content}
             
-            要約:
+            日本語要約:
             """
         else:
             prompt = f"""
@@ -99,7 +101,7 @@ class ArticleSummarizer:
         try:
             # Language-specific system message
             if settings.language == "ja":
-                system_message = "あなたは技術記事の簡潔で有益な要約を作成するテクニカルライターです。開発者にとって有用な実用的な情報に焦点を当ててください。"
+                system_message = "あなたは技術記事の簡潔で有益な日本語要約を作成するテクニカルライターです。英語の記事でも必ず日本語で要約してください。開発者にとって有用な実用的な情報に焦点を当て、専門用語は適切に日本語化または併記してください。"
             else:
                 system_message = "You are a technical writer who creates concise, informative summaries of technology articles. Focus on practical information that developers would find useful."
             
@@ -131,25 +133,46 @@ class ArticleSummarizer:
         if not summary or len(summary.strip()) < 20:
             return False
         
-        # Check if summary is too generic
-        generic_phrases = [
-            "this article discusses",
-            "the article talks about",
-            "this post covers",
-            "the author explains"
-        ]
+        # Language-specific generic phrase detection
+        if settings.language == "ja":
+            generic_phrases = [
+                "この記事では",
+                "この記事について",
+                "この投稿では",
+                "著者は説明",
+                "記事では説明",
+                "について説明している",
+                "について述べている"
+            ]
+        else:
+            generic_phrases = [
+                "this article discusses",
+                "the article talks about",
+                "this post covers",
+                "the author explains"
+            ]
         
         summary_lower = summary.lower()
         if any(phrase in summary_lower for phrase in generic_phrases):
             return False
         
+        # For Japanese, check if the summary contains some Japanese characters
+        if settings.language == "ja":
+            import re
+            # Check if summary contains Japanese characters (hiragana, katakana, kanji)
+            japanese_pattern = re.compile(r'[\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FAF]')
+            if not japanese_pattern.search(summary):
+                logger.warning(f"Summary doesn't contain Japanese characters: {summary[:50]}...")
+                return False
+        
         # Check if summary has some relation to the title
         title_words = set(title.lower().split())
         summary_words = set(summary.lower().split())
         
-        # Should have at least some word overlap
+        # Should have at least some word overlap (more lenient for Japanese)
         overlap = len(title_words.intersection(summary_words))
-        if overlap == 0 and len(title_words) > 2:
+        min_overlap = 0 if settings.language == "ja" else 0
+        if overlap < min_overlap and len(title_words) > 2:
             return False
         
         return True
@@ -170,12 +193,16 @@ class ArticleSummarizer:
         if len(summary) > 200:
             summary = summary[:200] + "..."
         
+        # For Japanese, add a note that this is a fallback
         if settings.language == "ja":
-            fallback_msg = "コンテンツあり - 要約生成に失敗しました。"
+            fallback_msg = "（自動要約が利用できないため、記事の冒頭部分を表示しています）"
+            if summary:
+                return f"{summary} {fallback_msg}"
+            else:
+                return "コンテンツあり - 要約生成に失敗しました。"
         else:
             fallback_msg = "Content available - summary generation failed."
-        
-        return summary if summary else fallback_msg
+            return summary if summary else fallback_msg
     
     async def generate_collection_summary(self, articles: List[Article]) -> str:
         """Generate a summary of the entire article collection."""
@@ -198,14 +225,15 @@ class ArticleSummarizer:
         # Language-specific prompt for collection summary
         if settings.language == "ja":
             prompt = f"""
-            収集した{len(articles)}記事に基づいて、今週の技術トレンドの簡潔な概要を作成してください。
+            収集した{len(articles)}記事に基づいて、今週の技術トレンドの簡潔な概要を日本語で作成してください。
             
             主要トピック: {', '.join(top_topics)}
             
             注目記事:
             {chr(10).join([f"- {article.title}" for article in top_articles[:3]])}
             
-            主要なテーマと重要な開発動向を強調した2-3文を書いてください。
+            AI自動化、エンジニアリング自動化、MLOps、DevOpsの観点から、主要なテーマと重要な開発動向を強調した2-3文を日本語で書いてください。
+            開発者にとって実用的で価値のある情報に焦点を当ててください。
             """
         else:
             prompt = f"""
@@ -222,7 +250,7 @@ class ArticleSummarizer:
         try:
             # Language-specific system message for collection summary
             if settings.language == "ja":
-                system_message = "あなたは技術トレンドアナリストです。週間の技術開発動向の簡潔な概要を作成してください。"
+                system_message = "あなたは技術トレンドアナリストです。AI自動化とエンジニアリング自動化に特化した週間の技術開発動向の簡潔な概要を日本語で作成してください。開発者にとって実用的で価値のある洞察を提供してください。"
             else:
                 system_message = "You are a tech trend analyst. Create concise overviews of weekly technology developments."
             
