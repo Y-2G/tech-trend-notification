@@ -24,28 +24,53 @@ class QueryGenerator:
         interests_str = ", ".join(profile.interests)
         high_priority_keywords = ", ".join(profile.keywords.high_priority)
         
-        prompt = f"""
-        Generate {max_queries} specific search queries for finding recent technology articles and trends.
-        
-        User interests: {interests_str}
-        High priority keywords: {high_priority_keywords}
-        
-        Focus on:
-        - Recent developments and updates (last 7 days)
-        - Breaking news in technology
-        - New releases and announcements
-        - Security vulnerabilities and fixes
-        - Performance improvements and optimizations
-        
-        Return only the search queries, one per line, without numbering or additional text.
-        Make queries specific and likely to find high-quality technical content.
-        """
+        # Create language-specific prompt
+        if settings.language == "ja":
+            prompt = f"""
+            最新の技術記事やトレンドを見つけるための具体的な検索クエリを{max_queries}個生成してください。
+            
+            ユーザーの関心分野: {interests_str}
+            優先度の高いキーワード: {high_priority_keywords}
+            
+            以下に焦点を当ててください:
+            - 最近の開発とアップデート（過去7日間）
+            - 技術分野のニュース速報
+            - 新しいリリースと発表
+            - セキュリティ脆弱性と修正
+            - パフォーマンス改善と最適化
+            
+            検索クエリのみを1行に1つずつ、番号付けや追加テキストなしで返してください。
+            高品質な技術コンテンツを見つけやすい具体的なクエリにしてください。
+            """
+        else:
+            prompt = f"""
+            Generate {max_queries} specific search queries for finding recent technology articles and trends.
+            
+            User interests: {interests_str}
+            High priority keywords: {high_priority_keywords}
+            
+            Focus on:
+            - Recent developments and updates (last 7 days)
+            - Breaking news in technology
+            - New releases and announcements
+            - Security vulnerabilities and fixes
+            - Performance improvements and optimizations
+            
+            Return only the search queries, one per line, without numbering or additional text.
+            Make queries specific and likely to find high-quality technical content.
+            """
         
         try:
+            # Language-specific system message
+            if settings.language == "ja":
+                system_message = "あなたは技術トレンドアナリストです。最新の技術ニュースや開発動向を見つけるための正確な検索クエリを生成してください。"
+            else:
+                system_message = "You are a tech trend analyst. Generate precise search queries for finding the latest technology news and developments."
+            
             response = await self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are a tech trend analyst. Generate precise search queries for finding the latest technology news and developments."},
+                    {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=200,

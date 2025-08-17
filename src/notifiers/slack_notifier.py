@@ -8,6 +8,7 @@ from slack_sdk.errors import SlackApiError
 from models.article import Article
 from config.settings import settings
 from config.profile import profile_manager
+from config.messages import get_message, get_nested_message
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +32,11 @@ class SlackNotifier:
             blocks = self._create_summary_blocks(top_articles, collection_summary)
             
             # Send message
+            fallback_text = f"{get_message('weekly_trends_title')} - {len(top_articles)}{get_message('articles_collected')}"
             response = self.client.chat_postMessage(
                 channel=self.channel,
                 blocks=blocks,
-                text=f"Weekly Tech Trends - {len(top_articles)} articles"  # Fallback text
+                text=fallback_text
             )
             
             if response["ok"]:
@@ -56,12 +58,11 @@ class SlackNotifier:
         blocks = []
         
         # Header block
-        header_text = f"📈 *Weekly Tech Trends* - {datetime.now().strftime('%B %d, %Y')}"
         blocks.append({
             "type": "header",
             "text": {
                 "type": "plain_text",
-                "text": "Weekly Tech Trends"
+                "text": get_message("weekly_trends_title")
             }
         })
         
@@ -71,7 +72,7 @@ class SlackNotifier:
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*This Week's Overview:*\n{collection_summary}"
+                    "text": f"*{get_message('weekly_overview')}*\n{collection_summary}"
                 }
             })
             blocks.append({"type": "divider"})
@@ -81,7 +82,7 @@ class SlackNotifier:
             "type": "section",
             "text": {
                 "type": "mrkdwn",
-                "text": f"📊 *{len(articles)} articles collected* from multiple sources"
+                "text": f"📊 *{len(articles)}{get_message('articles_collected')}*"
             }
         })
         
@@ -91,7 +92,7 @@ class SlackNotifier:
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "*🔥 Top Articles:*"
+                    "text": f"*🔥 {get_message('top_articles')}*"
                 }
             })
             
@@ -106,18 +107,19 @@ class SlackNotifier:
                 "elements": [
                     {
                         "type": "mrkdwn",
-                        "text": f"_Showing top 10 of {len(articles)} articles. Full list available in detailed report._"
+                        "text": f"_{get_message('showing_top_of', shown=10, total=len(articles))}_"
                     }
                 ]
             })
         
         # Add timestamp
+        current_time = datetime.now().strftime('%Y-%m-%d %H:%M UTC')
         blocks.append({
             "type": "context",
             "elements": [
                 {
                     "type": "mrkdwn",
-                    "text": f"_Generated on {datetime.now().strftime('%Y-%m-%d at %H:%M UTC')}_"
+                    "text": f"_{get_message('generated_on', datetime=current_time)}_"
                 }
             ]
         })
@@ -133,8 +135,8 @@ class SlackNotifier:
         
         # Add score if enabled
         if self.profile.notification.slack.include_score and article.score:
-            score_emoji = self._get_score_emoji(article.score)
-            title_text += f" {score_emoji} _{article.score:.2f}_"
+            score_label = self._get_score_label(article.score)
+            title_text += f" {score_label} _{article.score:.2f}_"
         
         blocks.append({
             "type": "section",
@@ -148,15 +150,19 @@ class SlackNotifier:
         details = []
         
         if article.source:
-            details.append(f"📰 {article.source}")
+            details.append(f"📰 {get_message('source')}: {article.source}")
         
         if article.published_date:
-            date_str = article.published_date.strftime("%b %d")
-            details.append(f"📅 {date_str}")
+            # Format date based on language
+            if settings.language == "ja":
+                date_str = article.published_date.strftime("%m月%d日")
+            else:
+                date_str = article.published_date.strftime("%b %d")
+            details.append(f"📅 {get_message('published')}: {date_str}")
         
         if article.tags:
             tags_str = " ".join([f"`{tag}`" for tag in article.tags[:3]])
-            details.append(f"🏷️ {tags_str}")
+            details.append(f"🏷️ {get_message('tags')}: {tags_str}")
         
         if details:
             blocks.append({
@@ -185,16 +191,16 @@ class SlackNotifier:
         
         return blocks
     
-    def _get_score_emoji(self, score: float) -> str:
-        """Get emoji representation of article score."""
+    def _get_score_label(self, score: float) -> str:
+        """Get localized score label with emoji."""
         if score >= 0.8:
-            return "🔥"
+            return get_nested_message("score_labels", "high")
         elif score >= 0.6:
-            return "⭐"
+            return get_nested_message("score_labels", "medium")
         elif score >= 0.4:
-            return "👍"
+            return get_nested_message("score_labels", "low")
         else:
-            return "📄"
+            return get_nested_message("score_labels", "default")
     
     async def send_error_notification(self, error_message: str) -> bool:
         """Send error notification to Slack."""
@@ -204,14 +210,14 @@ class SlackNotifier:
                     "type": "header",
                     "text": {
                         "type": "plain_text",
-                        "text": "⚠️ Tech Trends Collection Error"
+                        "text": f"⚠️ {get_message('error_title')}"
                     }
                 },
                 {
                     "type": "section",
                     "text": {
                         "type": "mrkdwn",
-                        "text": f"*Error occurred during weekly collection:*\n```{error_message}```"
+                        "text": f"*{get_message('error_occurred')}*\n```{error_message}```"
                     }
                 },
                 {
@@ -219,7 +225,7 @@ class SlackNotifier:
                     "elements": [
                         {
                             "type": "mrkdwn",
-                            "text": f"_Time: {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}_"
+                            "text": f"_{get_message('time')} {datetime.now().strftime('%Y-%m-%d %H:%M UTC')}_"
                         }
                     ]
                 }
@@ -228,7 +234,7 @@ class SlackNotifier:
             response = self.client.chat_postMessage(
                 channel=self.channel,
                 blocks=blocks,
-                text="Tech Trends Collection Error"
+                text=get_message("collection_error")
             )
             
             return response["ok"]

@@ -37,6 +37,7 @@ class Settings(BaseSettings):
     log_level: str = Field("INFO", env="LOG_LEVEL")
     max_articles_per_source: int = Field(10, env="MAX_ARTICLES_PER_SOURCE")
     similarity_threshold: float = Field(0.8, env="SIMILARITY_THRESHOLD")
+    language: str = Field("ja", env="LANGUAGE")  # ja for Japanese, en for English
     
     # Rate Limiting
     api_rate_limit: int = Field(10, env="API_RATE_LIMIT")  # requests per second

@@ -70,26 +70,43 @@ class ArticleSummarizer:
         # Limit content length for API efficiency
         content = article.content[:2000]  # Limit to ~2000 chars
         
-        prompt = f"""
-        Summarize this technical article in 2-3 sentences. Focus on:
-        - Key technical points and innovations
-        - Practical implications for developers
-        - Important updates or changes mentioned
-        
-        Title: {article.title}
-        Content: {content}
-        
-        Summary:
-        """
+        # Language-specific prompt
+        if settings.language == "ja":
+            prompt = f"""
+            この技術記事を2-3文で要約してください。以下に焦点を当ててください:
+            - 主要な技術的ポイントと革新
+            - 開発者への実用的な影響
+            - 言及されている重要なアップデートや変更
+            
+            タイトル: {article.title}
+            内容: {content}
+            
+            要約:
+            """
+        else:
+            prompt = f"""
+            Summarize this technical article in 2-3 sentences. Focus on:
+            - Key technical points and innovations
+            - Practical implications for developers
+            - Important updates or changes mentioned
+            
+            Title: {article.title}
+            Content: {content}
+            
+            Summary:
+            """
         
         try:
+            # Language-specific system message
+            if settings.language == "ja":
+                system_message = "あなたは技術記事の簡潔で有益な要約を作成するテクニカルライターです。開発者にとって有用な実用的な情報に焦点を当ててください。"
+            else:
+                system_message = "You are a technical writer who creates concise, informative summaries of technology articles. Focus on practical information that developers would find useful."
+            
             response = await self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {
-                        "role": "system", 
-                        "content": "You are a technical writer who creates concise, informative summaries of technology articles. Focus on practical information that developers would find useful."
-                    },
+                    {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=150,
@@ -140,7 +157,10 @@ class ArticleSummarizer:
     def _create_fallback_summary(self, content: str) -> str:
         """Create a simple fallback summary from content."""
         if not content:
-            return "No summary available."
+            if settings.language == "ja":
+                return "要約がありません。"
+            else:
+                return "No summary available."
         
         # Take first few sentences
         sentences = content.split('.')[:3]
@@ -150,7 +170,12 @@ class ArticleSummarizer:
         if len(summary) > 200:
             summary = summary[:200] + "..."
         
-        return summary if summary else "Content available - summary generation failed."
+        if settings.language == "ja":
+            fallback_msg = "コンテンツあり - 要約生成に失敗しました。"
+        else:
+            fallback_msg = "Content available - summary generation failed."
+        
+        return summary if summary else fallback_msg
     
     async def generate_collection_summary(self, articles: List[Article]) -> str:
         """Generate a summary of the entire article collection."""
@@ -170,25 +195,41 @@ class ArticleSummarizer:
         tag_counts = Counter(all_tags)
         top_topics = [tag for tag, count in tag_counts.most_common(5)]
         
-        prompt = f"""
-        Create a brief overview of this week's tech trends based on {len(articles)} collected articles.
-        
-        Top topics: {', '.join(top_topics)}
-        
-        Top articles:
-        {chr(10).join([f"- {article.title}" for article in top_articles[:3]])}
-        
-        Write 2-3 sentences highlighting the main themes and important developments.
-        """
+        # Language-specific prompt for collection summary
+        if settings.language == "ja":
+            prompt = f"""
+            収集した{len(articles)}記事に基づいて、今週の技術トレンドの簡潔な概要を作成してください。
+            
+            主要トピック: {', '.join(top_topics)}
+            
+            注目記事:
+            {chr(10).join([f"- {article.title}" for article in top_articles[:3]])}
+            
+            主要なテーマと重要な開発動向を強調した2-3文を書いてください。
+            """
+        else:
+            prompt = f"""
+            Create a brief overview of this week's tech trends based on {len(articles)} collected articles.
+            
+            Top topics: {', '.join(top_topics)}
+            
+            Top articles:
+            {chr(10).join([f"- {article.title}" for article in top_articles[:3]])}
+            
+            Write 2-3 sentences highlighting the main themes and important developments.
+            """
         
         try:
+            # Language-specific system message for collection summary
+            if settings.language == "ja":
+                system_message = "あなたは技術トレンドアナリストです。週間の技術開発動向の簡潔な概要を作成してください。"
+            else:
+                system_message = "You are a tech trend analyst. Create concise overviews of weekly technology developments."
+            
             response = await self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {
-                        "role": "system",
-                        "content": "You are a tech trend analyst. Create concise overviews of weekly technology developments."
-                    },
+                    {"role": "system", "content": system_message},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=200,
@@ -199,4 +240,7 @@ class ArticleSummarizer:
             
         except Exception as e:
             logger.error(f"Error generating collection summary: {e}")
-            return f"Collected {len(articles)} articles covering topics like {', '.join(top_topics[:3])}."
+            if settings.language == "ja":
+                return f"{len(articles)}記事を収集しました。主なトピック: {', '.join(top_topics[:3])}"
+            else:
+                return f"Collected {len(articles)} articles covering topics like {', '.join(top_topics[:3])}."

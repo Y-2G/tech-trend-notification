@@ -14,6 +14,7 @@ from typing import List
 
 from config.settings import settings
 from config.profile import profile_manager
+from config.messages import get_message
 from models.article import Article, ProcessedArticleCollection
 
 from collectors.web_search import WebSearchCollector
@@ -75,7 +76,7 @@ class TechTrendNotifier:
             
             if not all_articles:
                 logger.warning("No articles collected, sending empty notification")
-                await self.slack_notifier.send_weekly_summary([], "No articles were collected this week.")
+                await self.slack_notifier.send_weekly_summary([], get_message("no_articles"))
                 return True
             
             # Step 3: Deduplicate articles
