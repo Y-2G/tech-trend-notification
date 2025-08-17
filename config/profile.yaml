@@ -1,0 +1,72 @@
+user_profile:
+  name: "Tech Team"
+  interests:
+    - "Python"
+    - "JavaScript"
+    - "React"
+    - "Node.js"
+    - "Machine Learning"
+    - "AI"
+    - "DevOps"
+    - "Cloud Computing"
+    - "Kubernetes"
+    - "Docker"
+
+  keywords:
+    high_priority:
+      - "breakthrough"
+      - "new release"
+      - "major update"
+      - "security vulnerability"
+      - "performance improvement"
+
+    medium_priority:
+      - "tutorial"
+      - "best practices"
+      - "comparison"
+      - "review"
+      - "guide"
+
+    exclude:
+      - "clickbait"
+      - "sponsored"
+      - "advertisement"
+
+  sources:
+    web_search:
+      enabled: true
+      max_results: 15
+
+    rss_feeds:
+      enabled: true
+      feeds:
+        - "https://feeds.feedburner.com/oreilly/radar"
+        - "https://blog.github.com/feed/"
+        - "https://stackoverflow.blog/feed/"
+        - "https://dev.to/feed"
+        - "https://techcrunch.com/feed/"
+
+    x_twitter:
+      enabled: false
+      accounts:
+        - "@github"
+        - "@nodejs"
+        - "@reactjs"
+        - "@docker"
+        - "@kubernetesio"
+
+    reddit:
+      enabled: true
+      subreddits:
+        - "programming"
+        - "MachineLearning"
+        - "webdev"
+        - "devops"
+        - "kubernetes"
+
+  notification:
+    slack:
+      enabled: true
+      max_articles: 20
+      include_summary: true
+      include_score: true

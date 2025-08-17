@@ -1,0 +1,83 @@
+name: Weekly Tech Trends Collection
+
+on:
+  schedule:
+    # Run every Monday at 09:00 JST (00:00 UTC)
+    - cron: "0 0 * * 1"
+
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      test_mode:
+        description: "Run in test mode (limited collection)"
+        required: false
+        default: "false"
+        type: boolean
+
+jobs:
+  collect-trends:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run health check
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+        run: |
+          python src/main.py --health
+
+      - name: Collect and notify (Test Mode)
+        if: ${{ github.event.inputs.test_mode == 'true' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          LOG_LEVEL: DEBUG
+        run: |
+          python src/main.py --test
+
+      - name: Collect and notify (Full Mode)
+        if: ${{ github.event.inputs.test_mode != 'true' }}
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL: ${{ secrets.SLACK_CHANNEL }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          LOG_LEVEL: INFO
+          MAX_ARTICLES_PER_SOURCE: 15
+        run: |
+          python src/main.py
+
+      - name: Upload logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v3
+        with:
+          name: tech-trends-logs
+          path: tech_trends.log
+          retention-days: 7
