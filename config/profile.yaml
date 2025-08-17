@@ -1,72 +1,282 @@
 user_profile:
-  name: "Tech Team"
+  name: "AI Engineering Automation Specialist"
   interests:
-    - "Python"
-    - "JavaScript"
-    - "React"
-    - "Node.js"
-    - "Machine Learning"
+    # AI/ML Core Technologies
     - "AI"
+    - "Machine Learning"
+    - "Deep Learning"
+    - "LLM"
+    - "GPT"
+    - "Claude"
+    - "OpenAI"
+    - "Anthropic"
+    - "Hugging Face"
+    - "Transformers"
+    - "RAG"
+    - "Vector Database"
+    - "Embeddings"
+    - "MCP"
+
+    # Engineering Automation
+    - "GitHub Actions"
+    - "CI/CD"
     - "DevOps"
-    - "Cloud Computing"
+    - "MLOps"
+    - "Automation"
+    - "DevOps Automation"
+    - "Infrastructure as Code"
+    - "Terraform"
+    - "Ansible"
+    - "GitOps"
+    - "ArgoCD"
+    - "Jenkins"
+
+    # Development Automation Tools
+    - "GitHub Copilot"
+    - "Cursor"
+    - "Tabnine"
+    - "CodeWhisperer"
+    - "AI Code Generation"
+    - "Automated Testing"
+    - "Test Automation"
+    - "Code Review Automation"
+    - "Devin AI"
+    - "SWE-agent"
+
+    # Programming Languages & Frameworks
+    - "Python"
+    - "TypeScript"
+    - "Go"
+    - "Rust"
+    - "FastAPI"
+    - "LangChain"
+    - "LlamaIndex"
+    - "Streamlit"
+    - "Gradio"
+
+    # Cloud & Infrastructure
+    - "AWS"
+    - "Google Cloud"
+    - "Azure"
     - "Kubernetes"
     - "Docker"
+    - "Serverless"
+    - "Lambda"
+    - "Cloud Functions"
+    - "Container Automation"
+
+    # Data & Analytics Automation
+    - "Data Pipeline"
+    - "Apache Airflow"
+    - "dbt"
+    - "Prefect"
+    - "MLflow"
+    - "Kubeflow"
+    - "DVC"
+    - "Weights & Biases"
+
+    # Monitoring & Observability
+    - "Prometheus"
+    - "Grafana"
+    - "DataDog"
+    - "OpenTelemetry"
+    - "Log Automation"
+    - "Alert Automation"
 
   keywords:
     high_priority:
+      # AI/Automation Breakthroughs
+      - "AI automation"
+      - "自動化"
+      - "workflow automation"
+      - "process automation"
+      - "intelligent automation"
+      - "AI-powered"
+      - "machine learning automation"
+      - "automated deployment"
+      - "automated testing"
+      - "automated monitoring"
+      - "automated scaling"
+      - "automated remediation"
+      - "zero-touch"
+      - "self-healing"
+      - "autonomous"
+      - "no-code"
+      - "low-code"
+
+      # Latest Releases & Updates
       - "breakthrough"
+      - "automation"
       - "new release"
       - "major update"
       - "security vulnerability"
       - "performance improvement"
+      - "game-changer"
+      - "revolutionary"
+      - "cutting-edge"
+      - "state-of-the-art"
+      - "next-generation"
+
+      # Security & Performance
+      - "security automation"
+      - "automated security"
+      - "performance optimization"
+      - "cost optimization"
+      - "efficiency improvement"
+      - "productivity boost"
+
+      # Specific Technologies
+      - "GPT-4"
+      - "Claude-3"
+      - "Gemini"
+      - "LangChain"
+      - "AutoGPT"
+      - "GitHub Copilot"
+      - "Cursor AI"
+      - "MCP"
 
     medium_priority:
       - "tutorial"
+      - "how-to"
       - "best practices"
+      - "case study"
+      - "implementation guide"
       - "comparison"
+      - "benchmark"
       - "review"
+      - "analysis"
+      - "deep dive"
+      - "hands-on"
+      - "practical"
+      - "real-world"
+      - "production"
+      - "enterprise"
+      - "open source"
+      - "framework"
+      - "tool"
+      - "platform"
+      - "integration"
+      - "migration"
+      - "optimization"
+      - "scaling"
       - "guide"
 
     exclude:
       - "clickbait"
       - "sponsored"
       - "advertisement"
+      - "promotional"
+      - "marketing"
+      - "sales pitch"
+      - "basic introduction"
+      - "beginner guide"
+      - "hello world"
+      - "getting started"
+      - "outdated"
+      - "deprecated"
 
   sources:
     web_search:
       enabled: true
-      max_results: 15
+      max_results: 20
 
     rss_feeds:
       enabled: true
       feeds:
+        # AI/ML専門サイト
         - "https://feeds.feedburner.com/oreilly/radar"
+        - "https://blog.openai.com/rss/"
+        - "https://www.anthropic.com/news/rss"
+        - "https://huggingface.co/blog/feed.xml"
+        - "https://ai.googleblog.com/feeds/posts/default"
+        - "https://blog.research.google/feeds/posts/default"
+
+        # エンジニアリング・自動化
         - "https://blog.github.com/feed/"
         - "https://stackoverflow.blog/feed/"
         - "https://dev.to/feed"
-        - "https://techcrunch.com/feed/"
+        - "https://martinfowler.com/feed.atom"
+        - "https://netflixtechblog.com/feed"
+        - "https://engineering.uber.com/rss/"
+        - "https://eng.lyft.com/feed"
+        - "https://medium.com/feed/@Netflix_Techblog"
+
+        # DevOps/MLOps
+        - "https://kubernetes.io/feed.xml"
+        - "https://blog.docker.com/feed/"
+        - "https://aws.amazon.com/blogs/machine-learning/feed/"
+        - "https://cloud.google.com/blog/products/ai-machine-learning/rss"
+        - "https://azure.microsoft.com/en-us/blog/topics/artificial-intelligence/feed/"
+
+        # 日本語技術サイト
+        - "https://zenn.dev/feed"
+        - "https://qiita.com/popular-items/feed.atom"
+        - "https://techblog.yahoo.co.jp/rss.xml"
+        - "https://developers.cyberagent.co.jp/blog/feed/"
+        - "https://tech.mercari.com/rss"
+
+        # 自動化・ツール
+        - "https://github.blog/category/engineering/feed/"
+        - "https://blog.jetbrains.com/feed/"
+        - "https://code.visualstudio.com/feed.xml"
 
     x_twitter:
       enabled: false
       accounts:
+        # AI/ML Leaders
+        - "@OpenAI"
+        - "@AnthropicAI"
+        - "@huggingface"
+        - "@GoogleAI"
+        - "@DeepMind"
+
+        # Engineering Automation
         - "@github"
-        - "@nodejs"
-        - "@reactjs"
         - "@docker"
         - "@kubernetesio"
+        - "@HashiCorp"
+        - "@jetbrains"
+        - "@code"
+
+        # Thought Leaders
+        - "@karpathy"
+        - "@ylecun"
+        - "@goodfellow_ian"
+        - "@fchollet"
 
     reddit:
       enabled: true
       subreddits:
-        - "programming"
+        # AI/ML
         - "MachineLearning"
-        - "webdev"
+        - "artificial"
+        - "OpenAI"
+        - "LocalLLaMA"
+        - "ChatGPT"
+        - "singularity"
+
+        # Engineering/Automation
+        - "programming"
         - "devops"
         - "kubernetes"
+        - "docker"
+        - "automation"
+        - "sysadmin"
+        - "selfhosted"
+
+        # Specific Technologies
+        - "Python"
+        - "golang"
+        - "rust"
+        - "typescript"
+        - "aws"
+        - "googlecloud"
+        - "azure"
 
   notification:
     slack:
       enabled: true
-      max_articles: 20
+      max_articles: 25
       include_summary: true
       include_score: true
+      priority_threshold: 0.6 # 高品質な記事のみ通知
