@@ -36,13 +36,23 @@ class BaseCollector(ABC):
                 logger.error(f"Rate limited request failed for {self.source_name}: {e}")
                 raise
     
-    def _is_recent_article(self, published_date: Optional[datetime], days: int = 7) -> bool:
+    def _is_recent_article(self, published_date: Optional[datetime], days: int = None) -> bool:
         """Check if article was published within the specified days."""
         if not published_date:
-            return True  # Include articles without date
+            # For articles without date, include them but log it
+            # This is common for web search results that don't provide dates
+            logger.debug("Article has no published date, including with assumption it's recent")
+            return True  # Include articles without dates, assuming they're recent from search
         
-        cutoff_date = datetime.utcnow() - timedelta(days=days)
-        return published_date >= cutoff_date
+        # Use configured max age or default
+        max_age = days if days is not None else settings.max_article_age_days
+        cutoff_date = datetime.utcnow() - timedelta(days=max_age)
+        
+        is_recent = published_date >= cutoff_date
+        if not is_recent:
+            logger.debug(f"Article is too old: published {published_date}, cutoff {cutoff_date}")
+        
+        return is_recent
     
     def _clean_text(self, text: str) -> str:
         """Clean and normalize text content."""

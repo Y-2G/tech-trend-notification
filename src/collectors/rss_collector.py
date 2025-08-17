@@ -78,14 +78,24 @@ class RSSCollector(BaseCollector):
                 logger.warning(f"Feed parsing warning for {feed_url}: {feed.bozo_exception}")
             
             articles = []
+            total_entries = len(feed.entries[:self.max_articles])
+            recent_count = 0
+            
             for entry in feed.entries[:self.max_articles]:
                 try:
                     article = self._create_article_from_entry(entry, feed_url)
-                    if article and self._is_recent_article(article.published_date):
-                        articles.append(article)
+                    if article:
+                        if self._is_recent_article(article.published_date):
+                            articles.append(article)
+                            recent_count += 1
+                        else:
+                            logger.debug(f"Filtered out old article: {article.title[:50]}... (published: {article.published_date})")
                 except Exception as e:
                     logger.warning(f"Error creating article from feed entry: {e}")
                     continue
+            
+            if total_entries > 0:
+                logger.info(f"RSS feed {feed_url}: {recent_count}/{total_entries} articles are recent (within 7 days)")
             
             return articles
             

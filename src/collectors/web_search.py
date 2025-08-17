@@ -44,13 +44,19 @@ class WebSearchCollector(BaseCollector):
         try:
             # Use asyncio to run the synchronous Tavily client
             loop = asyncio.get_event_loop()
+            # Add date filter to query for recent content
+            from datetime import datetime, timedelta
+            one_week_ago = datetime.utcnow() - timedelta(days=7)
+            date_filter = f" after:{one_week_ago.strftime('%Y-%m-%d')}"
+            enhanced_query = f"{query}{date_filter}"
+            
             response = await loop.run_in_executor(
                 None,
                 lambda: self.client.search(
-                    query=query,
+                    query=enhanced_query,
                     search_depth="advanced",
                     max_results=max_results,
-                    include_domains=["github.com", "stackoverflow.com", "dev.to", "medium.com", "techcrunch.com"],
+                    include_domains=["github.com", "stackoverflow.com", "dev.to", "medium.com", "techcrunch.com", "zenn.dev", "qiita.com"],
                     exclude_domains=["facebook.com", "twitter.com", "instagram.com"]
                 )
             )

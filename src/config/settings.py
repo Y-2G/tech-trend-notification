@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     similarity_threshold: float = Field(0.8, env="SIMILARITY_THRESHOLD")
     language: str = Field("ja", env="LANGUAGE")  # ja for Japanese, en for English
     
+    # Date Filtering
+    max_article_age_days: int = Field(7, env="MAX_ARTICLE_AGE_DAYS")  # Only articles within this many days
+    
     # Rate Limiting
     api_rate_limit: int = Field(10, env="API_RATE_LIMIT")  # requests per second
     

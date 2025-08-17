@@ -24,40 +24,40 @@ class QueryGenerator:
         interests_str = ", ".join(profile.interests)
         high_priority_keywords = ", ".join(profile.keywords.high_priority)
         
-        # Create language-specific prompt
+        # Create language-specific prompt with strong emphasis on recent content
         if settings.language == "ja":
             prompt = f"""
-            最新の技術記事やトレンドを見つけるための具体的な検索クエリを{max_queries}個生成してください。
+            過去1週間以内の最新技術記事やトレンドを見つけるための具体的な検索クエリを{max_queries}個生成してください。
             
             ユーザーの関心分野: {interests_str}
             優先度の高いキーワード: {high_priority_keywords}
             
-            以下に焦点を当ててください:
-            - 最近の開発とアップデート（過去7日間）
-            - 技術分野のニュース速報
-            - 新しいリリースと発表
-            - セキュリティ脆弱性と修正
-            - パフォーマンス改善と最適化
+            重要: 必ず過去7日間以内の最新情報に焦点を当ててください:
+            - 今週の技術ニュース
+            - 最新のリリース・アップデート（2025年8月）
+            - 直近のセキュリティ脆弱性と修正
+            - 最新のパフォーマンス改善
+            - 今週発表された新機能・ツール
             
+            各クエリに「最新」「今週」「2025年8月」「最近」などの時間を示すキーワードを含めてください。
             検索クエリのみを1行に1つずつ、番号付けや追加テキストなしで返してください。
-            高品質な技術コンテンツを見つけやすい具体的なクエリにしてください。
             """
         else:
             prompt = f"""
-            Generate {max_queries} specific search queries for finding recent technology articles and trends.
+            Generate {max_queries} specific search queries for finding the most recent technology articles and trends from the past week only.
             
             User interests: {interests_str}
             High priority keywords: {high_priority_keywords}
             
-            Focus on:
-            - Recent developments and updates (last 7 days)
-            - Breaking news in technology
-            - New releases and announcements
-            - Security vulnerabilities and fixes
-            - Performance improvements and optimizations
+            IMPORTANT: Focus exclusively on content from the last 7 days:
+            - This week's tech news
+            - Latest releases and updates (August 2025)
+            - Recent security vulnerabilities and fixes
+            - Latest performance improvements
+            - New features and tools announced this week
             
+            Include time-specific keywords like "latest", "this week", "August 2025", "recent" in each query.
             Return only the search queries, one per line, without numbering or additional text.
-            Make queries specific and likely to find high-quality technical content.
             """
         
         try:
@@ -92,20 +92,33 @@ class QueryGenerator:
             return self._get_default_queries(profile.interests)[:max_queries]
     
     def _get_default_queries(self, interests: List[str]) -> List[str]:
-        """Generate default search queries based on interests."""
-        base_queries = [
-            "latest technology news this week",
-            "new software releases 2024",
-            "tech security vulnerabilities",
-            "programming language updates",
-            "cloud computing trends"
-        ]
+        """Generate default search queries based on interests with recent date focus."""
+        if settings.language == "ja":
+            base_queries = [
+                "今週の最新技術ニュース",
+                "2025年8月 新しいソフトウェアリリース",
+                "最新のセキュリティ脆弱性",
+                "プログラミング言語 最新アップデート",
+                "クラウドコンピューティング 最新トレンド"
+            ]
+        else:
+            base_queries = [
+                "latest technology news this week August 2025",
+                "new software releases August 2025",
+                "recent tech security vulnerabilities",
+                "programming language updates this week",
+                "cloud computing trends August 2025"
+            ]
         
-        # Add interest-specific queries
+        # Add interest-specific queries with date focus
         interest_queries = []
         for interest in interests[:3]:  # Limit to top 3 interests
-            interest_queries.append(f"{interest} latest news")
-            interest_queries.append(f"{interest} new features 2024")
+            if settings.language == "ja":
+                interest_queries.append(f"{interest} 最新ニュース 今週")
+                interest_queries.append(f"{interest} 新機能 2025年8月")
+            else:
+                interest_queries.append(f"{interest} latest news this week")
+                interest_queries.append(f"{interest} new features August 2025")
         
         return base_queries + interest_queries
     
