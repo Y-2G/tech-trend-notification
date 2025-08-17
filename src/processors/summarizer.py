@@ -4,8 +4,8 @@ import asyncio
 
 import openai
 
-from ..models.article import Article
-from ..config.settings import settings
+from models.article import Article
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 

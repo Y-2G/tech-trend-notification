@@ -4,8 +4,8 @@ import asyncio
 
 import openai
 
-from ..config.settings import settings
-from ..config.profile import profile_manager
+from config.settings import settings
+from config.profile import profile_manager
 
 logger = logging.getLogger(__name__)
 
@@ -14,7 +14,6 @@ class QueryGenerator:
     """Generates search queries using OpenAI GPT for content collection."""
     
     def __init__(self):
-        openai.api_key = settings.openai_api_key
         self.client = openai.AsyncOpenAI(api_key=settings.openai_api_key)
     
     async def generate_search_queries(self, max_queries: int = 5) -> List[str]:

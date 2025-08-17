@@ -4,8 +4,8 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 from datetime import datetime, timedelta
 
-from ..models.article import Article
-from ..config.settings import settings
+from models.article import Article
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 

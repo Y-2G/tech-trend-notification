@@ -13,7 +13,7 @@ class Article(BaseModel):
     author: Optional[str] = None
     published_date: Optional[datetime] = None
     source: str = Field(..., min_length=1)
-    source_type: str = Field(..., regex="^(web_search|rss|twitter|reddit)$")
+    source_type: str = Field(..., pattern="^(web_search|rss|twitter|reddit)$")
     tags: List[str] = Field(default_factory=list)
     score: Optional[float] = Field(None, ge=0.0, le=1.0)
     relevance_score: Optional[float] = Field(None, ge=0.0, le=1.0)

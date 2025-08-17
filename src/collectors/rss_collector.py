@@ -8,8 +8,8 @@ import aiohttp
 import feedparser
 from bs4 import BeautifulSoup
 
-from .base import BaseCollector
-from ..models.article import Article
+from collectors.base import BaseCollector
+from models.article import Article
 
 logger = logging.getLogger(__name__)
 

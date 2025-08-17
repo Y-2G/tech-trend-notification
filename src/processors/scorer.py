@@ -2,8 +2,8 @@ import logging
 from typing import List, Dict
 import re
 
-from ..models.article import Article
-from ..config.profile import profile_manager
+from models.article import Article
+from config.profile import profile_manager
 
 logger = logging.getLogger(__name__)
 

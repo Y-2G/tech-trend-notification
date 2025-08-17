@@ -5,9 +5,9 @@ from datetime import datetime
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 
-from ..models.article import Article
-from ..config.settings import settings
-from ..config.profile import profile_manager
+from models.article import Article
+from config.settings import settings
+from config.profile import profile_manager
 
 logger = logging.getLogger(__name__)
 

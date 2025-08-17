@@ -5,9 +5,9 @@ import asyncio
 
 from tavily import TavilyClient
 
-from .base import BaseCollector
-from ..models.article import Article
-from ..config.settings import settings
+from collectors.base import BaseCollector
+from models.article import Article
+from config.settings import settings
 
 logger = logging.getLogger(__name__)
 
