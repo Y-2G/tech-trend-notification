@@ -6,6 +6,10 @@ Collects and curates technology articles from multiple sources,
 processes them with AI, and sends notifications to Slack.
 """
 
+# Suppress urllib3 warnings on macOS
+import warnings
+warnings.filterwarnings("ignore", message="urllib3 v2 only supports OpenSSL 1.1.1+")
+
 import asyncio
 import logging
 import sys

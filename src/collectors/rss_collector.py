@@ -174,11 +174,26 @@ class RSSCollector(BaseCollector):
     
     async def health_check(self) -> bool:
         """Check if RSS collector can fetch feeds."""
-        test_feed = "https://feeds.feedburner.com/oreilly/radar"
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(test_feed, timeout=aiohttp.ClientTimeout(total=10)) as response:
-                    return response.status == 200
-        except Exception as e:
-            logger.error(f"RSS health check failed: {e}")
-            return False
+        # Use a more reliable test feed
+        test_feeds = [
+            "https://feeds.feedburner.com/oreilly/radar",
+            "https://stackoverflow.blog/feed/",
+            "https://dev.to/feed"
+        ]
+        
+        for test_feed in test_feeds:
+            try:
+                async with aiohttp.ClientSession(
+                    timeout=aiohttp.ClientTimeout(total=10),
+                    headers={'User-Agent': 'TechTrendNotifier/1.0'}
+                ) as session:
+                    async with session.get(test_feed) as response:
+                        if response.status == 200:
+                            logger.info(f"RSS health check passed with {test_feed}")
+                            return True
+            except Exception as e:
+                logger.debug(f"RSS health check failed for {test_feed}: {e}")
+                continue
+        
+        logger.error("RSS health check failed for all test feeds")
+        return False

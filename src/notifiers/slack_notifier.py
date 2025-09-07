@@ -252,14 +252,40 @@ class SlackNotifier:
                 logger.error("Slack auth test failed")
                 return False
             
-            # Test channel access
-            channel_info = self.client.conversations_info(channel=self.channel)
-            if not channel_info["ok"]:
-                logger.error(f"Cannot access Slack channel: {self.channel}")
-                return False
+            logger.info(f"Slack auth successful. Bot user: {auth_response.get('user', 'unknown')}")
             
-            logger.info("Slack connection test successful")
-            return True
+            # Test channel access - try different approaches
+            try:
+                # First try with channel name as-is
+                channel_info = self.client.conversations_info(channel=self.channel)
+                if channel_info["ok"]:
+                    logger.info(f"Successfully accessed channel: {channel_info['channel']['name']}")
+                    return True
+            except SlackApiError as e:
+                if e.response['error'] == 'channel_not_found':
+                    # Try with # prefix
+                    try:
+                        channel_with_hash = f"#{self.channel}" if not self.channel.startswith('#') else self.channel
+                        channel_info = self.client.conversations_info(channel=channel_with_hash)
+                        if channel_info["ok"]:
+                            logger.info(f"Successfully accessed channel with #: {channel_info['channel']['name']}")
+                            return True
+                    except SlackApiError:
+                        pass
+                    
+                    # List available channels for debugging
+                    try:
+                        channels_response = self.client.conversations_list(types="public_channel,private_channel")
+                        if channels_response["ok"]:
+                            channel_names = [ch['name'] for ch in channels_response['channels']]
+                            logger.error(f"Channel '{self.channel}' not found. Available channels: {channel_names[:10]}")
+                        else:
+                            logger.error(f"Cannot access Slack channel '{self.channel}' and failed to list channels")
+                    except Exception as list_error:
+                        logger.error(f"Cannot access channel '{self.channel}' and failed to list channels: {list_error}")
+                
+                logger.error(f"Slack channel access failed: {e.response['error']}")
+                return False
             
         except SlackApiError as e:
             logger.error(f"Slack connection test failed: {e.response['error']}")
